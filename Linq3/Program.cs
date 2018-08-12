@@ -5,6 +5,21 @@ using System.Collections.Generic;
 
 namespace Linq3
 {
+    public class OrderItemPresentation
+    {
+        public int OrderId { get; set; }
+        public string ItemName { get; set; }
+        public DateTime OrderDate { get; set; }
+        public int quantity { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string Month { get; set; }
+    }
+    public class Item
+    {
+        public string ItemName { get; set; }
+
+        public decimal Price { get; set; }
+    }
     public class Order
     {
         public int OrderId { get; set; }
@@ -12,23 +27,38 @@ namespace Linq3
         public DateTime OrderDate { get; set; }
         public int quantity { get; set; }
     }
+    public class Player
+    {
+        public string Name { get; set; }
+        public string Country { get; set; }
+        public string Team { get; set; }
+    }
     class Program
     {
         static void Main(string[] args)
         {
+
+            var Numbers = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+            Console.WriteLine("Array of Numbers: " + string.Join(",", Numbers));
+            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
+            PrintCubeOfNumbers(Numbers);
+            var ModifiedNumbers = new int[] { 7, 8, 9, 10, 11, 12, 13, 14 };
+            Console.WriteLine("Array of Modified Numbers: " + string.Join(",", ModifiedNumbers));
+            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
+            PrintCubeOfNumbers(ModifiedNumbers);
+
+
+            var players = GetPlayes();
+
+            var shuffledPlayers = players.OrderBy(a => Guid.NewGuid()).ToList();
+            var halfWay = shuffledPlayers.Count / 2;
+            var TeamA = shuffledPlayers.Take(halfWay).ToList();
+            var TeamB = shuffledPlayers.Skip(halfWay).ToList();
+            PrintPossibleMatches(TeamA, TeamB);
+
             var Orders = GetOrders();
             List<string> columns = new List<string>() { "Orderid", "ItemName", "OrderDate", "Quantity" };
             var SortedOrders = Orders.OrderByDescending(item => item.OrderDate).ThenByDescending(item => item.quantity).ToList();
-            var SortedOrders2 = (from ordr in Orders
-                                group ordr by ordr.OrderDate.Month into o
-                                select new
-                                {
-                                   Month = o.Key,
-                                   Count = o.Count()
-
-                                }).ToList();
-
-
 
             Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
                     "Id", "ItemName", "OrderDate", "Quantity");
@@ -36,22 +66,68 @@ namespace Linq3
             SortedOrders.ForEach(item =>
             {
                 Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
-                                   item.OrderId, item.ItemName, item.OrderDate.Date.ToShortDateString(),item.quantity);
+                                   item.OrderId, item.ItemName, item.OrderDate.Date.ToShortDateString(), item.quantity);
             });
 
+            var ordersByMonth = (from ordr in Orders
+                                 group ordr by ordr.OrderDate.Month into o
+                                 orderby o.Key descending
+
+                                 select o).ToList();
 
             Console.WriteLine();
 
             Console.WriteLine("{0,4}{1,14}",
                    "Month", "Orders Count");
             Console.WriteLine();
-            SortedOrders2.ForEach(item =>
+            ordersByMonth.ForEach(item =>
             {
-                Console.WriteLine("{0,4}{1,14}",
-                                   item.Month, item.Count);
+                Console.WriteLine($"Month: {item.Key}");
+                Console.WriteLine();
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
+                    "Id", "ItemName", "OrderDate", "Quantity");
+                foreach (var order in item.OrderByDescending(x=>x.OrderDate).ThenByDescending(y=>y.quantity))
+                {
+                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
+                                   order.OrderId, order.ItemName, order.OrderDate.Date.ToShortDateString(), order.quantity);
+                }
+
             });
 
             Console.ReadLine();
+            Console.WriteLine();
+            var items = GetItems();
+            var result = (from ordr in Orders                        
+                          join item in items 
+                          on ordr.ItemName equals item.ItemName
+                          select new
+                          {
+                              ordr, item
+                          } into joinResult
+                          group joinResult by joinResult.ordr.OrderDate.Month into groupResult
+                          orderby groupResult.Key descending
+                          select groupResult
+                         ).ToList();
+            result.ForEach(ordrGroups =>
+            {
+                Console.WriteLine($"Month: {ordrGroups.Key}");
+                Console.WriteLine();
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,11}{4,15}",
+                    "Id", "ItemName", "OrderDate", "Quantiy","TotalPrice");
+                foreach (var order in ordrGroups.OrderByDescending(x=>x.ordr.OrderDate).ThenByDescending(y=>y.ordr.quantity))
+                {
+                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}{4,15}",
+                                   order.ordr.OrderId, order.item.ItemName, order.ordr.OrderDate.Date.ToShortDateString(), order.ordr.quantity,order.ordr.quantity*order.item.Price);
+                }
+
+               
+            });
+        
+            Console.ReadLine();
+
+            var orders = GetOrders();
+            string orderWithMaxQuantiy = orders.OrderByDescending(x => x.quantity).FirstOrDefault()?.ItemName;
+            bool orderPlacedBeforejanuary = orders.Where(x => x.OrderDate.Year == DateTime.Now.Year).Any(x => x.OrderDate.Month < 1);
         }
 
         static List<Order> GetOrders()
@@ -65,10 +141,97 @@ namespace Linq3
                 new Order(){OrderId=5,OrderDate=new DateTime(2018,7,24),ItemName="product5",quantity=4},
                 new Order(){OrderId=6,OrderDate=new DateTime(2018,8,3),ItemName="product6",quantity=2},
             };
-             
+
+        }
+        static List<Item> GetItems()
+        {
+            return new List<Item>()
+            {
+                new Item(){ItemName="product1",Price=10},
+                new Item(){ItemName="product2",Price=200},
+                new Item(){ItemName="product3",Price=140},
+                new Item(){ItemName="product4",Price=18.9m},
+                new Item(){ItemName="product5",Price=17},
+                new Item(){ItemName="product6",Price=120},
+
+
+            };
+
+        }
+
+        static List<Player> GetPlayes()
+        {
+            List<Player> players = new List<Player>()
+            {
+                new Player(){Name="Denis Shapovalov",Country="Canada"},
+                new Player(){Name="Milos Raonic",Country="Canada"},
+                new Player(){Name="Vasek Pospisil",Country="Canada"},
+
+                new Player(){Name="John Isner",Country="USA"},
+                new Player(){Name="Sam Querrey",Country="USA"},
+                new Player(){Name="Steve Johnson",Country="USA"},
+                new Player(){Name="Bradley Klahn",Country="USA"},
+
+                new Player(){Name="Ramkumar Ramanathan",Country="India"},
+                new Player(){Name="Prajnesh Gunneswaran",Country="India"},
+                new Player(){Name="Yuki Bhambri",Country="India"},
+
+                new Player(){Name="Nick Kyrgios",Country="Australia"},
+                new Player(){Name="John Millman",Country="Australia"},
+                new Player(){Name="Matthew Ebden",Country="Australia"},
+                new Player(){Name="Alex de Minaur",Country="Australia"},
+                new Player(){Name="Jason Kubler",Country="Australia"},
+
+                new Player(){Name="Roger Federer",Country="Switzerland"},
+                new Player(){Name="Henri Laaksonen",Country="Switzerland"},
+                new Player(){Name="Adrian Bodmer",Country="Switzerland"},
+                new Player(){Name="Yann Marti",Country="Switzerland"},
+                new Player(){Name="Stan Wawrinka",Country="Switzerland"},
+
+                new Player(){Name="Gonzalo Lama",Country="Chile"},
+                new Player(){Name="Victor Nunez",Country="Chile"},
+                new Player(){Name="Esteban Bruna",Country="Chile"},
+                 new Player(){Name="Christian Garin",Country="Chile"},
+            };
+            return players;
+
+        }
+        static void PrintCubeOfNumbers(int[] numbers)
+        {
+            var Cubeofnumbers = (from int num in numbers
+                                 let cubeNo = num * num * num
+                                 where cubeNo > 100 && cubeNo < 1000
+                                 select new { num, cubeNo }).ToList();
+
+            Cubeofnumbers.ForEach(item =>
+            {
+                Console.WriteLine("Number: " + item.num + " Cube: " + item.cubeNo);
+            });
+            Console.ReadLine();
+        }
+        static void PrintPossibleMatches(List<Player> TeamA, List<Player> TeamB)
+        {
+            Console.WriteLine("Team A : " + string.Join(",", TeamA.Select(x => x.Name + " (" + x.Country + ")")));
+            Console.WriteLine("Team B : " + string.Join(",", TeamB.Select(x => x.Name + " (" + x.Country + ")")));
+            Console.WriteLine();
+            Console.WriteLine("Possible Tennis Matches");
+            Console.WriteLine();
+            TeamA.ForEach(item1 =>
+            {
+                TeamB.ForEach(item2 =>
+                {
+                    if (item1.Country != item2.Country)
+                    {
+                        Console.WriteLine(item1.Name + "(A)" + "(" + item1.Country + ")" + " vs " + item2.Name + "(B)" + "(" + item2.Country + ")");
+                    }
+
+                });
+                Console.WriteLine();
+
+            });
+            Console.ReadLine();
         }
 
 
     }
 }
- 
