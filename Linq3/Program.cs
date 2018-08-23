@@ -5,14 +5,11 @@ using System.Collections.Generic;
 
 namespace Linq3
 {
-    public class OrderItemPresentation
+    public class OrderItem
     {
-        public int OrderId { get; set; }
-        public string ItemName { get; set; }
-        public DateTime OrderDate { get; set; }
-        public int quantity { get; set; }
-        public decimal TotalPrice { get; set; }
-        public string Month { get; set; }
+        public Order Order { get; set; }
+        public Item Item { get; set; }
+
     }
     public class Item
     {
@@ -23,6 +20,7 @@ namespace Linq3
     public class Order
     {
         public int OrderId { get; set; }
+
         public string ItemName { get; set; }
         public DateTime OrderDate { get; set; }
         public int quantity { get; set; }
@@ -37,97 +35,23 @@ namespace Linq3
     {
         static void Main(string[] args)
         {
-
-            var Numbers = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-            Console.WriteLine("Array of Numbers: " + string.Join(",", Numbers));
-            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
-            PrintCubeOfNumbers(Numbers);
-            var ModifiedNumbers = new int[] { 7, 8, 9, 10, 11, 12, 13, 14 };
-            Console.WriteLine("Array of Modified Numbers: " + string.Join(",", ModifiedNumbers));
-            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
-            PrintCubeOfNumbers(ModifiedNumbers);
-
-
-            var players = GetPlayes();
-
-            var shuffledPlayers = players.OrderBy(a => Guid.NewGuid()).ToList();
-            var halfWay = shuffledPlayers.Count / 2;
-            var TeamA = shuffledPlayers.Take(halfWay).ToList();
-            var TeamB = shuffledPlayers.Skip(halfWay).ToList();
-            PrintPossibleMatches(TeamA, TeamB);
-
-            var Orders = GetOrders();
-            List<string> columns = new List<string>() { "Orderid", "ItemName", "OrderDate", "Quantity" };
-            var SortedOrders = Orders.OrderByDescending(item => item.OrderDate).ThenByDescending(item => item.quantity).ToList();
-
-            Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
-                    "Id", "ItemName", "OrderDate", "Quantity");
-            Console.WriteLine();
-            SortedOrders.ForEach(item =>
+            try
             {
-                Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
-                                   item.OrderId, item.ItemName, item.OrderDate.Date.ToShortDateString(), item.quantity);
-            });
-
-            var ordersByMonth = (from ordr in Orders
-                                 group ordr by ordr.OrderDate.Month into o
-                                 orderby o.Key descending
-
-                                 select o).ToList();
-
-            Console.WriteLine();
-
-            Console.WriteLine("{0,4}{1,14}",
-                   "Month", "Orders Count");
-            Console.WriteLine();
-            ordersByMonth.ForEach(item =>
+                Excersise1();
+                Excersise2();
+                Excersise3();
+                Excersise4();
+                Excersise5();
+                Excersise6();
+                Excersise7();
+                Excersise8();
+                Excersise9();
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine($"Month: {item.Key}");
-                Console.WriteLine();
-                Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
-                    "Id", "ItemName", "OrderDate", "Quantity");
-                foreach (var order in item.OrderByDescending(x=>x.OrderDate).ThenByDescending(y=>y.quantity))
-                {
-                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
-                                   order.OrderId, order.ItemName, order.OrderDate.Date.ToShortDateString(), order.quantity);
-                }
 
-            });
+            }
 
-            Console.ReadLine();
-            Console.WriteLine();
-            var items = GetItems();
-            var result = (from ordr in Orders                        
-                          join item in items 
-                          on ordr.ItemName equals item.ItemName
-                          select new
-                          {
-                              ordr, item
-                          } into joinResult
-                          group joinResult by joinResult.ordr.OrderDate.Month into groupResult
-                          orderby groupResult.Key descending
-                          select groupResult
-                         ).ToList();
-            result.ForEach(ordrGroups =>
-            {
-                Console.WriteLine($"Month: {ordrGroups.Key}");
-                Console.WriteLine();
-                Console.WriteLine("{0,4}{1,14}{2,16}{3,11}{4,15}",
-                    "Id", "ItemName", "OrderDate", "Quantiy","TotalPrice");
-                foreach (var order in ordrGroups.OrderByDescending(x=>x.ordr.OrderDate).ThenByDescending(y=>y.ordr.quantity))
-                {
-                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}{4,15}",
-                                   order.ordr.OrderId, order.item.ItemName, order.ordr.OrderDate.Date.ToShortDateString(), order.ordr.quantity,order.ordr.quantity*order.item.Price);
-                }
-
-               
-            });
-        
-            Console.ReadLine();
-
-            var orders = GetOrders();
-            string orderWithMaxQuantiy = orders.OrderByDescending(x => x.quantity).FirstOrDefault()?.ItemName;
-            bool orderPlacedBeforejanuary = orders.Where(x => x.OrderDate.Year == DateTime.Now.Year).Any(x => x.OrderDate.Month < 1);
         }
 
         static List<Order> GetOrders()
@@ -231,7 +155,177 @@ namespace Linq3
             });
             Console.ReadLine();
         }
+        static void CountAndDisplayEvenNumber(int[] numbers)
+        {
+            var evenNumbers = numbers.ToList().FindAll(item => item % 2 == 0);
+            var count = evenNumbers.Count();
+            Console.WriteLine("Given Numbers: " + string.Join(",", numbers));
+
+            Console.WriteLine("Even Numbers: " + string.Join(",", evenNumbers));
+            Console.WriteLine("Even Numbers Count: " + count);
 
 
+        }
+
+        static void Excersise1()
+        {
+            var Numbers = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+            Console.WriteLine("Excersise1");
+            Console.WriteLine("Array of Numbers: " + string.Join(",", Numbers));
+            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
+            PrintCubeOfNumbers(Numbers);
+            var ModifiedNumbers = new int[] { 7, 8, 9, 10, 11, 12, 13, 14 };
+            Console.WriteLine("Array of Modified Numbers: " + string.Join(",", ModifiedNumbers));
+            Console.WriteLine("Output: Cube of the numbers that are greater than 100 but less than 1000");
+            PrintCubeOfNumbers(ModifiedNumbers);
+        }
+        static void Excersise2()
+        {
+            Console.WriteLine("Excersise2");
+            var players = GetPlayes();
+            var shuffledPlayers = players.OrderBy(a => Guid.NewGuid()).ToList();
+            var halfWay = shuffledPlayers.Count / 2;
+            var TeamA = shuffledPlayers.Take(halfWay).ToList();
+            var TeamB = shuffledPlayers.Skip(halfWay).ToList();
+            PrintPossibleMatches(TeamA, TeamB);
+        }
+        static void Excersise3()
+        {
+            Console.WriteLine("Excersise3");
+            var Orders = GetOrders();
+            //    List<string> columns = new List<string>() { "Orderid", "ItemName", "OrderDate", "Quantity" };
+            var SortedOrders = Orders.OrderByDescending(item => item.OrderDate).ThenByDescending(item => item.quantity).ToList();
+
+            Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
+                    "Id", "ItemName", "OrderDate", "Quantity");
+            Console.WriteLine();
+            SortedOrders.ForEach(item =>
+            {
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
+                                   item.OrderId, item.ItemName, item.OrderDate.Date.ToShortDateString(), item.quantity);
+            });
+        }
+        static void Excersise4()
+        {
+            var Orders = GetOrders();
+            Console.WriteLine("Excersise4");
+            var ordersByMonth = (from ordr in Orders
+                                 group ordr by ordr.OrderDate.Month into o
+                                 orderby o.Key descending
+
+                                 select o).ToList();
+
+            Console.WriteLine();
+
+            Console.WriteLine("Group By Month");
+            Console.WriteLine();
+            ordersByMonth.ForEach(item =>
+            {
+                Console.WriteLine($"Month: {item.Key}");
+                Console.WriteLine();
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,10}",
+                    "Id", "ItemName", "OrderDate", "Quantity");
+                foreach (var order in item.OrderByDescending(x => x.OrderDate).ThenByDescending(y => y.quantity))
+                {
+                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}",
+                                   order.OrderId, order.ItemName, order.OrderDate.Date.ToShortDateString(), order.quantity);
+                }
+
+            });
+
+            Console.ReadLine();
+            Console.WriteLine();
+        }
+        static void Excersise5()
+        {
+            Console.WriteLine("Excersise5");
+            var items = GetItems();
+            var Orders = GetOrders();
+            var result = (from ordr in Orders
+                          join item in items
+                          on ordr.ItemName equals item.ItemName
+                          select new OrderItem
+                          {
+                              Order = ordr,
+                              Item = item
+                          } into joinResult
+                          group joinResult by joinResult.Order.OrderDate.Month into groupResult
+                          orderby groupResult.Key descending
+                          select groupResult
+                         ).ToList();
+            result.ForEach(ordrGroups =>
+            {
+                Console.WriteLine($"Month: {ordrGroups.Key}");
+                Console.WriteLine();
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,11}{4,15}",
+                    "Id", "ItemName", "OrderDate", "Quantiy", "TotalPrice");
+                foreach (var order in ordrGroups.OrderByDescending(x => x.Order.OrderDate).ThenByDescending(y => y.Order.quantity))
+                {
+                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}{4,15}",
+                                   order.Order.OrderId, order.Item.ItemName, order.Order.OrderDate.Date.ToShortDateString(), order.Order.quantity, order.Order.quantity * order.Item.Price);
+                }
+
+
+            });
+            Console.WriteLine();
+        }
+        static void Excersise6()
+        {
+            Console.WriteLine("Excersise6");
+
+            var Orders = GetOrders();
+            var Items = GetItems();
+            var result = (from ordr in Orders
+                           join item in Items
+                           on ordr.ItemName equals item.ItemName
+                           select new
+                           {
+                               Order = ordr,
+                               Item = item
+                           } into joinResult
+                           group joinResult by joinResult.Order.OrderDate.Month into groupResult
+                           orderby groupResult.Key descending
+                           select groupResult
+                         ).ToList();
+            result.ForEach(ordrGroups =>
+            {
+                Console.WriteLine($"Month: {ordrGroups.Key}");
+                Console.WriteLine();
+                Console.WriteLine("{0,4}{1,14}{2,16}{3,11}{4,15}",
+                    "Id", "ItemName", "OrderDate", "Quantiy", "TotalPrice");
+                foreach (var order in ordrGroups.OrderByDescending(x => x.Order.OrderDate).ThenByDescending(y => y.Order.quantity))
+                {
+                    Console.WriteLine("{0,4}{1,14}{2,16}{3,5}{4,15}",
+                                   order.Order.OrderId, order.Item.ItemName, order.Order.OrderDate.Date.ToShortDateString(), order.Order.quantity, order.Order.quantity * order.Item.Price);
+                }
+
+
+            });
+
+            Console.ReadLine();
+        }
+        static void Excersise7()
+        {
+            Console.WriteLine("Excersise7");
+            var orders = GetOrders();
+            bool QuantitesinOrderCollectionGreaterThanZero = orders.TrueForAll(item => item.quantity > 0);
+            string orderWithMaxQuantiy = orders.OrderByDescending(x => x.quantity).FirstOrDefault()?.ItemName;
+            bool orderPlacedBeforejanuary = orders.Where(x => x.OrderDate.Year == DateTime.Now.Year).Any(x => x.OrderDate.Month < 1);
+            Console.WriteLine($"there are any orders placed before Jan of this yearollection is >0: {orderPlacedBeforejanuary}");
+            Console.WriteLine($"Check if all the quantities in the Order collection is >0 : {QuantitesinOrderCollectionGreaterThanZero}");
+            Console.WriteLine($"name of the item that was ordered in largest quantity in a single order: {orderWithMaxQuantiy}");
+            Console.WriteLine();
+            Console.WriteLine("Excersise9");
+        }
+        static void Excersise8()
+        {
+
+        }
+        static void Excersise9()
+        {
+            int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+            CountAndDisplayEvenNumber(numbers);
+            Console.ReadLine();
+        }
     }
 }
